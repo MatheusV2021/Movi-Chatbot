@@ -1,0 +1,10 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; }
+.app { min-height: 100vh; display: grid; grid-template-columns: 320px 1fr; }
+.sidebar { padding: 28px; background: #d9f8e9; }
+.main { padding: 0 32px; }
+.topbar { min-height: 110px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #d7e1e6; }
+.chat { padding-top: 30px; }
+.composer { display: flex; gap: 12px; margin-top: 25px; }
+.input-wrap { flex: 1; }
+.input-wrap input { width: 100%; padding: 18px; }
