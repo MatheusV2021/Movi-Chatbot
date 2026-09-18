@@ -7,7 +7,7 @@ const busca = document.querySelector('#searchInput');
 const CHAVE = 'movi_conversas';
 let conversaAtual = null;
 
-// não mexe aqui pelo amor de Deus
+
 function carregarConversas() {
   return JSON.parse(localStorage.getItem(CHAVE) || '[]');
 }
@@ -70,7 +70,7 @@ function renderizarMensagens() {
 }
 
 function respostaTemporaria(pergunta) {
-  // isso aqui é só pra tela já funcionar antes da API/RAG ficar pronta
+
   return `<p>Recebi sua pergunta: <strong>“${pergunta}”</strong></p>
     <p>O front do Movi já está funcionando. Quando o backend estiver pronto, a resposta real vai entrar aqui pela API.</p>`;
 }
@@ -87,7 +87,6 @@ formulario.addEventListener('submit', event => {
   conversa.mensagens.push({ tipo: 'user', texto, hora: horaAgora() });
   if (conversa.titulo === 'Nova conversa') conversa.titulo = texto.slice(0, 28);
 
-  // depois é só trocar essa resposta temporária por um fetch pro backend
   conversa.mensagens.push({ tipo: 'bot', html: respostaTemporaria(texto), hora: horaAgora() });
   salvarConversas(conversas);
   campo.value = '';
@@ -116,3 +115,79 @@ if (existentes.length) {
 } else {
   criarConversa();
 }
+
+const profileBtn = document.querySelector('#profileBtn');
+const profileMenu = document.querySelector('#profileMenu');
+const authOverlay = document.querySelector('#authOverlay');
+const authClose = document.querySelector('#authClose');
+const authForm = document.querySelector('#authForm');
+const authTitle = document.querySelector('#authTitle');
+const authSubtitle = document.querySelector('#authSubtitle');
+const authSubmit = document.querySelector('#authSubmit');
+const authSwitchText = document.querySelector('#authSwitchText');
+const authSwitchBtn = document.querySelector('#authSwitchBtn');
+const authPassword = document.querySelector('#authPassword');
+let authMode = 'login';
+
+function configurarAuth(modo) {
+  authMode = modo;
+  const cadastro = modo === 'register';
+  authOverlay.classList.toggle('register', cadastro);
+  authTitle.textContent = cadastro ? 'Criar sua conta' : 'Entrar no Movi';
+  authSubtitle.textContent = cadastro ? 'Crie uma conta para manter seu perfil e suas conversas organizadas.' : 'Acesse sua conta para manter suas conversas salvas.';
+  authSubmit.textContent = cadastro ? 'Criar conta' : 'Entrar';
+  authSwitchText.textContent = cadastro ? 'Já tem uma conta?' : 'Ainda não tem uma conta?';
+  authSwitchBtn.textContent = cadastro ? 'Entrar' : 'Criar conta';
+  authPassword.autocomplete = cadastro ? 'new-password' : 'current-password';
+  document.querySelector('#authName').required = cadastro;
+}
+
+function abrirAuth(modo) {
+  configurarAuth(modo);
+  profileMenu.classList.remove('open');
+  authOverlay.classList.add('open');
+  authOverlay.setAttribute('aria-hidden', 'false');
+  setTimeout(() => document.querySelector(modo === 'register' ? '#authName' : '#authEmail').focus(), 50);
+}
+
+function fecharAuth() {
+  authOverlay.classList.remove('open');
+  authOverlay.setAttribute('aria-hidden', 'true');
+}
+
+profileBtn.addEventListener('click', event => {
+  event.stopPropagation();
+  profileMenu.classList.toggle('open');
+});
+
+document.querySelector('#openLoginBtn').addEventListener('click', () => abrirAuth('login'));
+document.querySelector('#openRegisterBtn').addEventListener('click', () => abrirAuth('register'));
+authClose.addEventListener('click', fecharAuth);
+authSwitchBtn.addEventListener('click', () => configurarAuth(authMode === 'login' ? 'register' : 'login'));
+
+authOverlay.addEventListener('click', event => {
+  if (event.target === authOverlay) fecharAuth();
+});
+
+document.addEventListener('click', event => {
+  if (!profileMenu.contains(event.target) && event.target !== profileBtn) profileMenu.classList.remove('open');
+});
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') fecharAuth();
+});
+
+authForm.addEventListener('submit', event => {
+  event.preventDefault();
+
+  const dados = {
+    nome: document.querySelector('#authName').value.trim(),
+    email: document.querySelector('#authEmail').value.trim(),
+    senha: authPassword.value
+  };
+
+// Não mexam aqui pelo amor de Deus
+  console.log(`Auth aguardando backend: ${authMode}`, { ...dados, senha: '***' });
+  authSubmit.textContent = authMode === 'register' ? 'Cadastro aguardando backend' : 'Login aguardando backend';
+  setTimeout(() => configurarAuth(authMode), 1400);
+});
