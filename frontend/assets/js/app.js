@@ -2,6 +2,7 @@ const mensagens = document.querySelector('#messages');
 const formulario = document.querySelector('#chatForm');
 const campo = document.querySelector('#messageInput');
 const recentes = document.querySelector('#recentList');
+const busca = document.querySelector('#searchInput');
 
 const CHAVE = 'movi_conversas';
 let conversaAtual = null;
@@ -94,7 +95,14 @@ formulario.addEventListener('submit', event => {
 });
 
 document.querySelector('#newChatBtn').addEventListener('click', criarConversa);
+document.querySelector('#themeBtn').addEventListener('click', () => document.body.classList.toggle('dark'));
 
+busca.addEventListener('input', () => {
+  const termo = busca.value.toLowerCase();
+  document.querySelectorAll('.bubble').forEach(balao => {
+    balao.style.opacity = !termo || balao.textContent.toLowerCase().includes(termo) ? '1' : '.22';
+  });
+});
 
 function renderizarTudo() {
   renderizarRecentes();
