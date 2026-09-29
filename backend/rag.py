@@ -4,7 +4,8 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from config import (
     BASE_VETORIAL,
     MODELO_EMBEDDING,
-    QUANTIDADE_RESULTADOS
+    QUANTIDADE_RESULTADOS,
+    LIMIAR_DISTANCIA
 )
 
 
@@ -40,19 +41,22 @@ def carregar_base():
 def buscar_contexto(pergunta):
     base = carregar_base()
 
-    documentos = base.similarity_search(
+    documentos_com_distancia = base.similarity_search_with_score(
         pergunta,
         k=QUANTIDADE_RESULTADOS
     )
 
     resultados = []
 
-    for documento in documentos:
+    for documento, distancia in documentos_com_distancia:
+        if distancia > LIMIAR_DISTANCIA:
+            continue
         resultados.append({
             "texto": documento.page_content,
             "arquivo": documento.metadata.get("arquivo", "Desconhecido"),
             "categoria": documento.metadata.get("categoria", "Desconhecida"),
-            "pagina": documento.metadata.get("page")
+            "pagina": documento.metadata.get("page"),
+            "distancia": float(distancia)
         })
 
     return resultados
