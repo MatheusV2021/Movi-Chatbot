@@ -216,3 +216,42 @@ Cadastre `GROQ_API_KEY` como variável secreta na plataforma de hospedagem. A UR
 O backend utiliza embeddings locais e pode ultrapassar os limites de memória de planos gratuitos. Para ambientes com pouca RAM, considere gerar a base vetorial localmente e utilizar um serviço externo de embeddings.
 
 
+## Engenharia de Prompt
+
+Esta etapa apresenta a evolução dos prompts do Movi, mantendo a arquitetura RAG, a base de conhecimento, os embeddings, o índice vetorial, a interface web e a orquestração com LangGraph.
+
+### Técnicas implementadas
+
+- **Zero-shot (sem exemplos):** instruções refinadas sem exemplos de respostas.
+- **Few-shot (com exemplos):** instruções refinadas acompanhadas de exemplos fictícios.
+- **Separação de instruções:** mensagens de sistema separadas do histórico, contexto recuperado e pergunta.
+- **Tratamento de ausência de evidência:** respostas padronizadas quando não existem documentos relevantes.
+- **Decomposição do fluxo:** responsabilidades distribuídas entre diferentes nós do LangGraph.
+- **Proteção contra prompt injection (injeção de instruções maliciosas):** o conteúdo recuperado é tratado como dado, não como instrução.
+
+### Arquivos dos experimentos
+
+- `backend/prompts.py`: versões refinadas dos prompts.
+- `backend/prompts_legado.py`: prompt anterior utilizado na comparação.
+- `backend/avaliar_prompts.py`: execução dos experimentos.
+- `backend/resultados_prompt.json`: respostas e resultados registrados.
+- `backend/tests/test_prompt_flow.py`: testes automatizados.
+
+### Execução
+
+Dentro da pasta `backend`, com as dependências instaladas e a chave da Groq configurada:
+
+```bash
+python avaliar_prompts.py --saida resultados_prompt.json
+python -m unittest discover -s tests -v
+```
+
+### Comparação dos resultados
+
+Os experimentos comparam o prompt original, o zero-shot e o few-shot utilizando os mesmos trechos recuperados em cada caso.
+
+Os cenários incluem perguntas relacionadas à base de conhecimento, perguntas parcialmente respondíveis, ausência de evidência, perguntas fora do domínio, continuidade de conversa e tentativas diretas e indiretas de prompt injection.
+
+As respostas, as fontes recuperadas e as avaliações humanas estão registradas em `backend/resultados_prompt.json`.
+
+A comparação permite observar as diferenças de fundamentação, objetividade e resistência às instruções maliciosas. Os resultados não representam garantia absoluta de segurança.
